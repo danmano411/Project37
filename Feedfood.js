@@ -14,6 +14,9 @@ class Feedbutton
         feedbutton.mousePressed(function(){
             foodStock--;
             writeStock(foodStock)
+            database.ref("/").update({
+                FeedTime:hour()
+              })
         });
     }
 }

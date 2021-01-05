@@ -24,6 +24,10 @@ function setup() {
   database = firebase.database();
   foodStock = database.ref("Food").on("value", readStock)
 
+  feedTime = database.ref("FeedTime").on("value", function(data){
+    LastFed = data.val(); 
+  })
+
   dog = createSprite(830, 280, 20, 20)
   dog.addImage(normalDog);
   dog.scale = 0.3;
@@ -38,11 +42,7 @@ function setup() {
 
 function draw() {  
   background(46, 139, 87)
-
-  //if (keyWentDown(UP_ARROW)){
-    //addFood(foodS)
-    //dog.addImage(happyDog)
-  //}
+  
   drawSprites();
   //add styles here
 
