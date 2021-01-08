@@ -1,7 +1,10 @@
 //Create variables here
 var dog, happyDog, database, foodS, foodStock, feedbutton;
-var normalDog;
-
+var sadDog;
+var bedroom, garden, washroom;
+var currenttime;
+var LastFed;
+var gameState;
 function alertDBVal()
 {
   database = firebase.database();
@@ -12,10 +15,14 @@ function alertDBVal()
 
 function preload(){
   //load images here
-  normalDog = loadImage("images/dogImg.png")
+  sadDog = loadImage("images/dogImg.png")
   happyDog = loadImage("images/dogImg1.png")
 
   milk = loadImage("images/Milk.png")
+
+  bedroom = loadImage("images/Bed Room.png")
+  garden = loadImage("images/Garden.png")
+  washroom = loadImage("images/Wash Room.png")
 }
 
 function setup() {
@@ -28,8 +35,12 @@ function setup() {
     LastFed = data.val(); 
   })
 
+  reedState = database.ref("gameState").on("value", function(data){
+    gameState = data.val();
+  })
+
   dog = createSprite(830, 280, 20, 20)
-  dog.addImage(normalDog);
+  dog.addImage(sadDog);
   dog.scale = 0.3;
 
   foodObj = new Food(milk, foodStock);
@@ -48,7 +59,7 @@ function draw() {
 
   fill("white")
   textSize(22)
-  LastFed = hour();
+  currenttime = hour();
 
   if(LastFed>=12){ 
     text("Last Fed: " + LastFed%12 + " PM", 350,45)
@@ -57,15 +68,50 @@ function draw() {
   }else{
     text("Last Fed: " + LastFed + " AM", 350, 45)
   }
-
-  if (foodStock <= 19){
-    dog.addImage(happyDog)
-  }else{
-    dog.addImage(normalDog)
+  
+  if(currenttime==(LastFed+1))
+  {
+    updateState("Playing")
+    foodObj.Garden();
   }
-  foodObj.display();
-  addFoodButton.display();
-  feedButton.display();
+  else if(currenttime == (LastFed+2))
+  {
+    updateState("Sleeping")
+    foodObj.Bedroom();
+  } 
+  else if(currenttime>(LastFed + 2) && currenttime <= (LastFed + 4))
+  {
+    updateState("Bathing")
+    foodObj.Washroom();
+  }
+  else
+  {
+    updateState("Hungry")
+    foodObj.display();
+    if (currenttime == LastFed){
+      dog.addImage(happyDog);
+    }else{
+      dog.addImage(sadDog)
+    }
+
+    if (foodStock <= 0){
+      foodStock = 0;
+      writeStock(foodStock);
+      feedButton.hide();
+    }else{
+      feedButton.display();
+    }
+  
+    if (foodStock >= 50){
+      foodStock = 50;
+      writeStock(foodStock);
+      addFoodButton.hide();
+    }else{
+      addFoodButton.display();
+    }
+  }
+
+
 }
 
 function readStock(data){
@@ -78,3 +124,8 @@ function writeStock(z){
   })
 }
 
+function updateState(state){
+  database.ref("/").update({
+    gameState:state
+  })
+}

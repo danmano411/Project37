@@ -21,6 +21,13 @@ class Food{
             }
         }
     }
-
-
+    Garden(){
+        background(garden)
+    }
+    Bedroom(){
+        background(bedroom)
+    }
+    Washroom(){
+        background(washroom)
+    }
 }
